@@ -33,7 +33,7 @@ $$
 
 The naive implementation of the sequential algorithm simply generates all the P(n) states to verify which solution satifies the constraints of the n-queens puzzle.
 
-In order to reduce time complexity, it can be found that during the generation of the states, it can be forced that no queen can ben found on the diagonal line or horizontal line of any other queen. To that end, it can be used a simple array of size n. Let R be an array with n components such that
+In order to reduce time complexity, it can be found that during the generation of the states, it can be forced to have that no queen can be found on the diagonal line or the horizontal line of any other queen. To that end, it can be used a simple array of size n. Let R be an array with n components such that
 
 $$
     R: Q \rightarrow C (1)
@@ -47,4 +47,6 @@ $$
 
 ### 1.1.1 Implementation
 
-The exploration of the tree of solutions proceeds only in the partial paths, i.e. of height h <= n, satisfying equation (2).
+The exploration of the tree of solutions proceeds only in the partial paths, i.e. of height h <= n, satisfying equation (2). Also, at each step of the algorithm, R can be represented using a bit array.
+
+![Image of bit array R](https://github.com/luigidisotto/n-queens/blob/master/img/bit-array.png)

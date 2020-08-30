@@ -58,12 +58,15 @@ Thus, the sequential algorithm can be expressed as in the following
 
 ```C
 void treeExploring(int ld, int cols, int rd){
-  if(cols == mask){ count++; }
+  if(cols == mask){ 
+      count++;
+  }
   int poss = ~(ld | cols | rd) & mask;
+
   while(poss){ 
     int lsb = poss & -poss;
     poss -= lsb;
     treeExploring( (ld|lsb)<<1, (cols|lsb), (rd|lsb)>>1 );
-  } 
+  }
 }
 ```

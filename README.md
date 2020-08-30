@@ -25,11 +25,8 @@ In the following will be introduced two parallel implementations of a Divide-And
 
 Before going further into the details of the sequential algorithm, we introduce the following definition
 
-> Def.1: Let an abstract tree model all possible configurations, or states, a chessboard B of size n x n, and with n queens, it can assume. The root node, with height h=0, represents the empty configuration. A path from the root node to a generic internal node at height h > 0, represents a partial configuration of B with h <= n queens. Furthermore, the generic node represents the position (i, j) in B, assuming B to be indexed using a matrix-like notation, in which it can ben found a queen. Thus, the number of paths of size n, namely all > >  possible permutations of the n queens is given by
+> Def.1: Let an abstract tree model all possible configurations, or states, a chessboard B of size n x n, and with n queens, it can assume. The root node, with height h=0, represents the empty configuration. A path from the root node to a generic internal node at height h > 0, represents a partial configuration of B with h <= n queens. Furthermore, the generic node represents the position (i, j) in B, assuming B to be indexed using a matrix-like notation, in which it can ben found a queen. Thus, the number of paths of size n, namely all > >  possible permutations of the n queens is given by                                                               P\left(n\right) = \frac{n^{2}!}{\left(n^{2} - n\right)!n!}
 
-`
->P\left(n\right) = \frac{n^{2}!}{\left(n^{2} - n\right)!n!}
-`
 
 The naive implementation of the sequential algorithm simply generates all the P(n) states to verify which solution satifies the constraints of the n-queens puzzle.
 
@@ -75,9 +72,9 @@ void treeExploring(int ld, int cols, int rd){
 
 The computational cost is given by
 
-$$
-    t_{seq} = O(n!)  (3)
-$$
+`
+t_{seq} = O(n!)  (3)
+`
 
 
 ### 2 The parallel algorithm

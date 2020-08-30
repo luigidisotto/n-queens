@@ -7,14 +7,13 @@
 using namespace std;
 
 template <typename T> class SharedQueue{
-
+	
 	public:
 		queue<T> queue;
 		unsigned long int maxSize;
 		pthread_mutex_t mutex;
 		pthread_cond_t cond;
-
-
+		
 	public:
 
 		SharedQueue(){

@@ -1,4 +1,4 @@
-CC = icc # use whatever C++ compiler, e.g GNU g++
+CC = icc # use whatever C++ compiler, e.g GNU g++ or Intel icc
 CXX = icpc
 OPTIMIZE_FLAGS = -O3 -finline-functions -fargument-noalias-global -restrict -fno-alias
 CXXFLAGS = -std=c++11 -Wall

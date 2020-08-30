@@ -37,9 +37,7 @@ template <typename T> class SharedQueue{
 
 		inline void push(T e){
 			pthread_mutex_lock(&mutex);
-			while (queue.size() == maxSize) {
-				pthread_cond_wait(&cond, &mutex);
-			}
+			while (queue.size() == maxSize) { pthread_cond_wait(&cond, &mutex); }
 			queue.push(e);
 			pthread_mutex_unlock(&mutex);
 			pthread_cond_signal(&cond); //by signaling here we reduce locking overhead
@@ -47,23 +45,20 @@ template <typename T> class SharedQueue{
 
 		inline T pop(){
 			pthread_mutex_lock(&mutex);
-			while (queue.size() == 0) {
-            	pthread_cond_wait(&cond, &mutex);
-        	}
+			while (queue.size() == 0) { pthread_cond_wait(&cond, &mutex); }
 			T e = queue.front();
 			queue.pop();
 			pthread_mutex_unlock(&mutex);
 			pthread_cond_signal(&cond);
 			return e;
 		}
-
-
+		
 		inline int size() {
-        	pthread_mutex_lock(&mutex);
-        	int size = queue.size();
-        	pthread_mutex_unlock(&mutex);
-        	return size;
-    	}
+			pthread_mutex_lock(&mutex);
+			int size = queue.size();
+			pthread_mutex_unlock(&mutex);
+			return size;
+		}
 
 };
 

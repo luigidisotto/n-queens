@@ -33,18 +33,18 @@ The naive implementation of the sequential algorithm simply generates all the P(
 In order to reduce time complexity, it can be found that during the generation of the states, it can be forced to have that no queen can be found on the diagonal line or the horizontal line of any other queen. To that end, it can be used a simple array of size n. Let R be an array with n components such that
 
 `
-R: Q \rightarrow C (1)
+R: Q \rightarrow C
 `
 
 where Q = {1, ..., n} is the set of labels of the queens, and C = {1, ..., n} is the set of column indexes of the chessboard. Then, if R(i) = j then queen i is in position B_{ij}. By definition, only one queen can be found in every row and in every column. Then, it matters only of verifying which of the O(n!) permutations of array R satisfy the aforementioned constrain over the diagonals, namely
 
 `
-\| R(i+d) - R(i) \| \neq d, \forall i, d. i = 1, ..., n-d, d = 1, ..., n-1 (2)
+\| R(i+d) - R(i) \| \neq d, \forall i, d. i = 1, ..., n-d, d = 1, ..., n-1
 `
 
 ### 1.1.1 Implementation
 
-The exploration of the tree of solutions proceeds only in the partial paths, i.e. of height h <= n, satisfying equation (2). Also, at each step of the algorithm, R can be represented using a bit array (`cols`) as showed in the following image
+The exploration of the tree of solutions proceeds only in the partial paths, i.e. of height h <= n, satisfying previous equation. Also, at each step of the algorithm, R can be represented using a bit array (`cols`) as showed in the following image
 
 ![](https://github.com/luigidisotto/n-queens/blob/master/img/bit-array.png)
 
@@ -73,7 +73,7 @@ void treeExploring(int ld, int cols, int rd){
 The computational cost is given by
 
 `
-t_{seq} = O(n!)  (3)
+t_{seq} = O(n!)
 `
 
 

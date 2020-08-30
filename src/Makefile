@@ -1,15 +1,15 @@
-CC                   = icc
-CXX 		      	 = icpc
-OPTIMIZE_FLAGS       = -O3 -finline-functions -fargument-noalias-global -restrict -fno-alias
-CXXFLAGS             = -std=c++11 -Wall
-INCS                 = -I /home/spm1501/fastflow
-LDFLAGS 			 = -pthread
-#FFTRACE				 = -DTRACE_FASTFLOW
-#TSTATS				 = -DSTATS
+CC					= icc
+CXX					= icpc
+OPTIMIZE_FLAGS		= -O3 -finline-functions -fargument-noalias-global -restrict -fno-alias
+CXXFLAGS			= -std=c++11 -Wall
+INCS				= -I /home/spm1501/fastflow
+LDFLAGS				= -pthread
+#FFTRACE			= -DTRACE_FASTFLOW
+#TSTATS				= -DSTATS
 
-TARGET				 = nq_thread_mmic nq_ff_mmic nq_thread nq_ff nq_serial_mmic nq_serial
+TARGET				= nq_thread_mmic nq_ff_mmic nq_thread nq_ff nq_serial_mmic nq_serial
 
-#SOURCES			 = nq-bitpattern-ff.cpp  nq-bitpattern-threads.cpp
+#SOURCES			= nq-bitpattern-ff.cpp  nq-bitpattern-threads.cpp
 
 all: $(TARGET)
 

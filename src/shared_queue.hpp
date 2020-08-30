@@ -19,8 +19,8 @@ template <typename T> class SharedQueue{
 
 		SharedQueue(){
 			pthread_mutex_init(&mutex, NULL);
-        	pthread_cond_init(&cond, NULL);
-        	maxSize = -1; //infinite capacity
+			pthread_cond_init(&cond, NULL);
+			maxSize = -1; //infinite capacity
 		}
 
 		SharedQueue(unsigned long int max){

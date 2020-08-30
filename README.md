@@ -27,17 +27,19 @@ Before going further into the details of the sequential algorithm, we introduce 
 
 > Def.1: Let an abstract tree model all possible configurations, or states, a chessboard B of size n x n, and with n queens, it can assume. The root node, with height h=0, represents the empty configuration. A path from the root node to a generic internal node at height h > 0, represents a partial configuration of B with h <= n queens. Furthermore, the generic node represents the position (i, j) in B, assuming B to be indexed using a matrix-like notation, in which it can ben found a queen. Thus, the number of paths of size n, namely all possible permutations of the n queens is given by
 
-$$
-    P\left(n\right) = \frac{n^{2}!}{\left(n^{2} - n\right)!n!}
-$$
+
+`
+P\left(n\right) = \frac{n^{2}!}{\left(n^{2} - n\right)!n!}
+`
+
 
 The naive implementation of the sequential algorithm simply generates all the P(n) states to verify which solution satifies the constraints of the n-queens puzzle.
 
 In order to reduce time complexity, it can be found that during the generation of the states, it can be forced to have that no queen can be found on the diagonal line or the horizontal line of any other queen. To that end, it can be used a simple array of size n. Let R be an array with n components such that
 
-$$
-    R: Q \rightarrow C (1)
-$$
+`
+R: Q \rightarrow C (1)
+`
 
 where Q = {1, ..., n} is the set of labels of the queens, and C = {1, ..., n} is the set of column indexes of the chessboard. Then, if R(i) = j then queen i is in position B_{ij}. By definition, only one queen can be found in every row and in every column. Then, it matters only of verifying which of the O(n!) permutations of array R satisfy the aforementioned constrain over the diagonals, namely
 

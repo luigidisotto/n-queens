@@ -25,21 +25,21 @@ template <typename T> class SharedQueue{
 
 		SharedQueue(unsigned long int max){
 			pthread_mutex_init(&mutex, NULL);
-        	pthread_cond_init(&cond, NULL);
-        	maxSize = max;
+			pthread_cond_init(&cond, NULL);
+			maxSize = max;
 		}
 
 
 		~SharedQueue() {
-        	pthread_mutex_destroy(&mutex);
-        	pthread_cond_destroy(&cond);
-    	}
+			pthread_mutex_destroy(&mutex);
+			pthread_cond_destroy(&cond);
+		}
 
 		inline void push(T e){
 			pthread_mutex_lock(&mutex);
 			while (queue.size() == maxSize) {
-            	pthread_cond_wait(&cond, &mutex);
-        	}
+				pthread_cond_wait(&cond, &mutex);
+			}
 			queue.push(e);
 			pthread_mutex_unlock(&mutex);
 			pthread_cond_signal(&cond); //by signaling here we reduce locking overhead

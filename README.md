@@ -53,3 +53,17 @@ The exploration of the tree of solutions proceeds only in the partial paths, i.e
 
 
 Array `cols` encodes the information about which columns are available after i-th queen has been placed. Furthermore, as you can see in the above image, the information on which positions are free in the (i+1)-th row is given by the bit array `poss`, derived by `cols` and arrays `ld` and `rd`, indicating, respectively, the occupied left and right diagonals in the (i+1)-th row.
+
+Thus, the sequential algorithm can be expressed as in the following
+
+```C
+void treeExploring(int ld, int cols, int rd){
+  if(cols == mask){ count++; }
+  int poss = ~(ld | cols | rd) & mask;
+  while(poss){ 
+    int lsb = poss & -poss;
+    poss -= lsb;
+    treeExploring( (ld|lsb)<<1, (cols|lsb), (rd|lsb)>>1 );
+  } 
+}
+```

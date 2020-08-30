@@ -1,15 +1,15 @@
-CC = icc
+CC = icc # use whatever C++ compiler, e.g GNU g++
 CXX = icpc
 OPTIMIZE_FLAGS = -O3 -finline-functions -fargument-noalias-global -restrict -fno-alias
 CXXFLAGS = -std=c++11 -Wall
-INCS = -I /home/spm1501/fastflow
+INCS = # -I /path/to/fastflow
 LDFLAGS = -pthread
-#FFTRACE			= -DTRACE_FASTFLOW
-#TSTATS				= -DSTATS
+#FFTRACE = -DTRACE_FASTFLOW
+#TSTATS	= -DSTATS
 
 TARGET = nq_thread_mmic nq_ff_mmic nq_thread nq_ff nq_serial_mmic nq_serial
 
-#SOURCES			= nq-bitpattern-ff.cpp  nq-bitpattern-threads.cpp
+#SOURCES = nq-bitpattern-ff.cpp  nq-bitpattern-threads.cpp
 
 all: $(TARGET)
 

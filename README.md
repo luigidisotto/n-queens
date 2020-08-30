@@ -47,7 +47,9 @@ $$
 
 ### 1.1.1 Implementation
 
-The exploration of the tree of solutions proceeds only in the partial paths, i.e. of height h <= n, satisfying equation (2). Also, at each step of the algorithm, R can be represented using a bit array.
+The exploration of the tree of solutions proceeds only in the partial paths, i.e. of height h <= n, satisfying equation (2). Also, at each step of the algorithm, R can be represented using a bit array (`cols`) as showed in the following image
 
 ![](https://github.com/luigidisotto/n-queens/blob/master/img/bit-array.png)
 
+
+Array `cols` encodes the information about which columns are available after i-th queen has been placed. Furthermore, as you can see in the above image, the information on which positions are free in the (i+1)-th row is given by the bit array `poss`, derived by `cols` and arrays `ld` and `rd`, indicating, respectively, the occupied left and right diagonals in the (i+1)-th row.

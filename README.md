@@ -15,13 +15,13 @@ Then ```cd src/```, and run ``` make``` to compile the code for different config
 
 Once the code has been compiled, the generated binary code can be run provided with the following arguments ```<n> <m> <d>```, where n is the size of the problem, i.e. the number of the queens, m is the number of workers and d is the depth where to stop sequential recursion.
 
-## Introduction
+## 1 Introduction
 
 The n-queens problems stems from a generalization of the [eight queens puzzle](https://en.wikipedia.org/wiki/Eight_queens_puzzle).
 
 In the following will be introduced two parallel implementations of a Divide-And-Conquer algorithm to solve the n-queens problem, using different computational models. The first using the [FastFlow](https://github.com/fastflow/fastflow) framework, and the second pure C++1 Threads. The experiments I made, were ran on an Intel Xeon architecture equipped with two Intel Xeon Phi co-processors.
 
-### 1.1. The sequental algorithm
+### 1.1 The sequental algorithm
 
 Before going further into the details of the sequential algorithm, we introduce the following definition
 
@@ -54,13 +54,14 @@ The exploration of the tree of solutions proceeds only in the partial paths, i.e
 
 Array `cols` encodes the information about which columns are available after i-th queen has been placed. Furthermore, as you can see in the above image, the information on which positions are free in the (i+1)-th row is given by the bit array `poss`, derived by `cols` and arrays `ld` and `rd`, indicating, respectively, the occupied left and right diagonals in the (i+1)-th row.
 
-Thus, the sequential algorithm can be expressed as in the following
+Thus, the sequential algorithm can be expressed as the following recursive function
 
 ```C
 void treeExploring(int ld, int cols, int rd){
   if(cols == mask){ 
       count++;
   }
+
   int poss = ~(ld | cols | rd) & mask;
 
   while(poss){ 
@@ -68,5 +69,47 @@ void treeExploring(int ld, int cols, int rd){
     poss -= lsb;
     treeExploring( (ld|lsb)<<1, (cols|lsb), (rd|lsb)>>1 );
   }
+
 }
 ```
+
+The computational cost is given by
+
+$$
+    t_{seq} = O(n!)  (3)
+$$
+
+
+### 2 The parallel algorithm
+
+The sequential algorithm follows the Divide-and-Conquer (DaC) paradigm: the problem is recursively split into sub-problems until a base case condition on the size of the sub-problem is met for solving it sequentially. Such a paradigm is embarassingly parallel, to be parallelised we can use the master-work framework: there's a processing element (PE) named as the `emitter` (E), that recursively divides the problem into smaller and independent problems, i.e. easy to solve and with no dependence on the results of other sub-problems is required. The emitter node has to generate sub-trees (implicitly implemented by array R), each of size 2 <= d <= n. Such partial paths, are redistributed to m PE `worker` (w) that have to conquer such sub-problems, namely finding which of them satisfies the condition (2). Furthermore, there is a PE `collector` (C) that awaits for worker nodes to complete in order to combine (reduce) partial solutions, i.e. counting how many configurations of the chessboard solve the puzzle.
+
+### 2.1 Cost model
+
+The selection of the parameter 2 <= d <= n, namely the base case in which to stop the recursion, is particularly important. To better understand that, let's see the cost model of the computational graph of the parallel application as described in the introduction to the parallel algorithm. The ideal service time of the parallel graph is given by
+
+$$
+    t_{farm} = max \{ t_{e}, \frac{t_{w}}{m}, t_{c} \}  (4)
+$$
+
+where
+
+$$
+    t_{e} = O\left(d!\right)       (5)
+$$
+
+$$
+    t_{w} = O\left((n-d)!\right)   (6)
+$$
+
+$$
+    t_{c} = O\left(m\right)        (7)
+$$
+
+they define, respectively, the service times of the emitter E, of the generic worker w_{j} and of the collector node C. In the case 2 <= d <= n/2, we have
+
+$$
+    t_{farm} = O\left( \frac{(n-d)!}{m} \right).    (8)
+$$
+
+That means that the conquering part represents the bottleneck of the whole graph. We could relax the analysis of the problem, considering only the first part of the graph, i.e E-w, since the term introduced by node C is negligible. Under such hypotheses, 

@@ -49,4 +49,4 @@ $$
 
 The exploration of the tree of solutions proceeds only in the partial paths, i.e. of height h <= n, satisfying equation (2). Also, at each step of the algorithm, R can be represented using a bit array.
 
-<img src="https://github.com/luigidisotto/n-queens/blob/master/img/bit-array.png" width="500" height="500" />
+<img src="https://github.com/luigidisotto/n-queens/blob/master/img/bit-array.png" width="250" height="250" />

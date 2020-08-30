@@ -29,7 +29,7 @@ Before going further into the details of the sequential algorithm, we introduce 
 
 
 `
-P\left(n\right) = \frac{n^{2}!}{\left(n^{2} - n\right)!n!}
+>P\left(n\right) = \frac{n^{2}!}{\left(n^{2} - n\right)!n!}
 `
 
 
@@ -43,9 +43,9 @@ R: Q \rightarrow C (1)
 
 where Q = {1, ..., n} is the set of labels of the queens, and C = {1, ..., n} is the set of column indexes of the chessboard. Then, if R(i) = j then queen i is in position B_{ij}. By definition, only one queen can be found in every row and in every column. Then, it matters only of verifying which of the O(n!) permutations of array R satisfy the aforementioned constrain over the diagonals, namely
 
-$$
-    \| R(i+d) - R(i) \| \neq d, \forall i, d. i = 1, ..., n-d, d = 1, ..., n-1 (2)
-$$
+`
+\| R(i+d) - R(i) \| \neq d, \forall i, d. i = 1, ..., n-d, d = 1, ..., n-1 (2)
+`
 
 ### 1.1.1 Implementation
 
@@ -90,28 +90,56 @@ The sequential algorithm follows the Divide-and-Conquer (DaC) paradigm: the prob
 
 The selection of the parameter 2 <= d <= n, namely the base case in which to stop the recursion, is particularly important. To better understand that, let's see the cost model of the computational graph of the parallel application as described in the introduction to the parallel algorithm. The ideal service time of the parallel graph is given by
 
-$$
-    t_{farm} = max \{ t_{e}, \frac{t_{w}}{m}, t_{c} \}  (4)
-$$
+`
+t_{farm} = max \{ t_{e}, \frac{t_{w}}{m}, t_{c} \}
+`
 
 where
 
-$$
-    t_{e} = O\left(d!\right)       (5)
-$$
+`
+t_{e} = O\left(d!\right)
+`
 
-$$
-    t_{w} = O\left((n-d)!\right)   (6)
-$$
+`
+t_{w} = O\left((n-d)!\right)
+`
 
-$$
-    t_{c} = O\left(m\right)        (7)
-$$
+`
+t_{c} = O\left(m\right)
+`
 
 they define, respectively, the service times of the emitter E, of the generic worker w_{j} and of the collector node C. In the case 2 <= d <= n/2, we have
 
-$$
-    t_{farm} = O\left( \frac{(n-d)!}{m} \right).    (8)
-$$
+`
+t_{farm} = O\left( \frac{(n-d)!}{m} \right).
+`
 
-That means that the conquering part represents the bottleneck of the whole graph. We could relax the analysis of the problem, considering only the first part of the graph, i.e E-w, since the term introduced by node C is negligible. Under such hypotheses, 
+That means that the conquering part represents the bottleneck of the whole graph. We could relax the analysis of the problem, considering only the first part of the graph, i.e E-w, since the term introduced by node C is negligible. Under such hypotheses, and considering a round-robin policy to redistribute tasks among worker nodes, the following relation on the queues utilization factor holds
+
+`
+\rho = O\left( \frac{(n-d)!}{T_{A}} \right) \geq 1
+`
+
+where T_A = O\left( m t_{e} \right) being E a sequential node. Thus, from the previous equation, we have that the bottleneck can be eliminated if and only if the number of the worker is the following
+
+`
+m_{opt} = \left \lceil{\frac{(n-d)!}{d!}}\right \rceil .
+`
+
+In a more realistic setting, we expect the speedup to grow linearly in the number of available PEs.
+Instead, in the case n/2 <= d <= n, the computation tends to be more fine grained, but end up having t_{farm} \approx t_e.
+
+Let now take into account the impact of the communication latencies. The threaded parallel application implements each of the m arcs {(E, w_j)} using queues: each worker shares a queue with the emitter E. Then we have
+
+`
+t_e = O(d!) + t_{synch}
+`
+
+`
+t_w = O((n-d)!) + t_{synch}.
+`
+
+The term t_{synch} represents the latency given by the mechanisms of synchronization to access the shared memory between (E, w_j). The introduction of m shared queues makes possible to implement a round robin policy to redistribute tasks among workers, solving thus the load-balancing problem. It is worth mentioning, that both in the FastFlow and C++11 threaded version of the application, the generinc worker node accumulates the partial solutions in a counter in its local memory. And thus, the collector node C, after all worker have been terminated, reduces all partial accumulated solutions simply by accessing all the local memories of the single worker nodes. In that way, communications latencies are reduced to the minimum, without incurring into synchronization mechanisms, making thus the conquering part totally independent. That solution, is motivated also in part by the fact that the reduce operation is negligible.
+
+
+### 3 Experimental results

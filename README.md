@@ -44,7 +44,7 @@ where Q = {1, ..., n} is the set of labels of the queens, and C = {1, ..., n} is
 
 ### 1.1.1 Implementation
 
-The exploration of the tree of solutions proceeds only in the partial paths, i.e. of height h <= n, satisfying previous equation. Also, at each step of the algorithm, R can be represented using a bit array (`cols`) as showed in the following image
+The exploration of the tree of solutions proceeds only in the partial paths, i.e. of height h <= n, satisfying previousg equation. Also, at each step of the algorithm, R can be represented using a bit array (`cols`) as showed in the following image
 
 ![](https://github.com/luigidisotto/n-queens/blob/master/img/bit-array.png)
 
@@ -81,7 +81,7 @@ t_{seq} = O(n!)
 
 The sequential algorithm follows the Divide-and-Conquer (DaC) paradigm: the problem is recursively split into sub-problems until a base case condition on the size of the sub-problem is met for solving it sequentially. Such a paradigm is embarassingly parallel, to be parallelised we can use the master-work framework: there's a processing element (PE) named as the `emitter` (E), that recursively divides the problem into smaller and independent problems, i.e. easy to solve and with no dependence on the results of other sub-problems is required. The emitter node has to generate sub-trees (implicitly implemented by array R), each of size 2 <= d <= n. Such partial paths, are redistributed to m PE `worker` (w) that have to conquer such sub-problems, namely finding which of them satisfies the condition (2). Furthermore, there is a PE `collector` (C) that awaits for worker nodes to complete in order to combine (reduce) partial solutions, i.e. counting how many configurations of the chessboard solve the puzzle.
 
-### 2.1 Cost model
+### 2.1 The Cost model
 
 The selection of the parameter 2 <= d <= n, namely the base case in which to stop the recursion, is particularly important. To better understand that, let's see the cost model of the computational graph of the parallel application as described in the introduction to the parallel algorithm. The ideal service time of the parallel graph is given by
 
@@ -138,3 +138,29 @@ The term t_{synch} represents the latency given by the mechanisms of synchroniza
 
 
 ### 3 Experimental results
+
+Experiments were run on an Intel Xeon architecture equipped with 8 cores @ 2Ghz, and with hyperthreading can be allocated up to 16 threads. Such an architecture hosts 2 co-processors based on the Intel Many Integrated Core (mic) architecture, named as Xeon Phi. Each co-processor is equipped with 60 cores @ 1Ghz, and with hyperthreading can be allocated a total of 240 threads. The parallel application, both the FastFlow and C++11 Threaded versions, has been compiled using the Intel compiler (ic) ver. 15.0.2. The size of the problem is n=16 with different values of d=2,4,8,16.
+Below the plots relative to the completion time, the scalability and the speedup on the mic (a,b,c) architecture, and the speedup on the host (d) architecture.
+
+![](https://github.com/luigidisotto/n-queens/blob/master/img/ff-perf.png)
+
+In the following image can be seen, instead, the efficiency of the FastFlow parallel application on the mic (a) and the host (b) architecture.
+
+![](https://github.com/luigidisotto/n-queens/blob/master/img/ff-eff.png)
+
+Plots relative to the completion time, scalability and speedup of the C++11 threaded version of the parallel application, are showed below
+
+![](https://github.com/luigidisotto/n-queens/blob/master/img/thread-perf.png)
+
+As for the FastFlow version, we also show the efficiency of the threaded version as can be seen in the following plots
+
+![](https://github.com/luigidisotto/n-queens/blob/master/img/thread-eff.png)
+
+For both the versions, the best sequential time (necessary to compute the scalability) has been chosen to be the one obtained on the host architecture. As we expected, the maximum scalability is obtained for d < n/2. Sadly, the theoretical optimum can't be reached due to intrinsic reasons of the architecture were the code is run, and as we can observe, from the time the hyperthreading shows up the scalability starts decreasing, thus no more than 40% to 50% of the available computing resources are used.
+For d >= n/2, instead, there is no scalability, in fact, as we have seen in the theoretical cost model, the computational graph behaves as single sequential module.
+In the following plots, we show the results of the impact of communication latencies in the C++11 threaded version.
+
+![](https://github.com/luigidisotto/n-queens/blob/master/img/thread-comm.png)
+
+As we can see, for d=4, we have t_{synch} \approx 0, namely, in the completion time of the generic worker the cost communication is completely negligible. Instead, for d=8, we have t_e, t_w \approx t_{synch}, namely, the generic worker spends more time waiting for new tasks than to conquer the problem.
+In conclusion, we can say that in the attempt to make the computation more fine grained, namely for increasing values of parameter d, the number of needed PEs tends to decrease. That is a consequence of the fact that the computational graph behaves, for increasing values of d, as a sequential module. Furthermore, the communication latancies are the dominant factor.

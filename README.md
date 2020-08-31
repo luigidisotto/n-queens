@@ -15,13 +15,13 @@ Then ```cd src/```, and run ``` make``` to compile the code for different config
 
 Once the code has been compiled, the generated binary code can be run provided with the following arguments ```<n> <m> <d>```, where n is the size of the problem, i.e. the number of the queens, m is the number of workers and d is the depth where to stop sequential recursion.
 
-## 1 Introduction
+## 1. Introduction
 
 The n-queens problems stems from a generalization of the [eight queens puzzle](https://en.wikipedia.org/wiki/Eight_queens_puzzle).
 
 In the following will be introduced two parallel implementations of a Divide-And-Conquer algorithm to solve the n-queens problem, using different computational models. The first using the [FastFlow](https://github.com/fastflow/fastflow) framework, and the second pure C++1 Threads. The experiments I made, were ran on an Intel Xeon architecture equipped with two Intel Xeon Phi co-processors.
 
-### 1.1 The sequental algorithm
+### 1.1. The sequental algorithm
 
 Before going further into the details of the sequential algorithm, we introduce the following definition
 
@@ -42,7 +42,7 @@ where Q = {1, ..., n} is the set of labels of the queens, and C = {1, ..., n} is
 \| R(i+d) - R(i) \| \neq d, \forall i, d. i = 1, ..., n-d, d = 1, ..., n-1
 `
 
-### 1.1.1 Implementation
+### 1.1.1. Implementation
 
 The exploration of the tree of solutions proceeds only in the partial paths, i.e. of height h <= n, satisfying previousg equation. Also, at each step of the algorithm, R can be represented using a bit array (`cols`) as showed in the following image
 
@@ -77,11 +77,11 @@ t_{seq} = O(n!)
 `
 
 
-### 2 The parallel algorithm
+## 2. The parallel algorithm
 
 The sequential algorithm follows the Divide-and-Conquer (DaC) paradigm: the problem is recursively split into sub-problems until a base case condition on the size of the sub-problem is met for solving it sequentially. Such a paradigm is embarassingly parallel, to be parallelised we can use the master-work framework: there's a processing element (PE) named as the `emitter` (E), that recursively divides the problem into smaller and independent problems, i.e. easy to solve and with no dependence on the results of other sub-problems is required. The emitter node has to generate sub-trees (implicitly implemented by array R), each of size 2 <= d <= n. Such partial paths, are redistributed to m PE `worker` (w) that have to conquer such sub-problems, namely finding which of them satisfies the condition (2). Furthermore, there is a PE `collector` (C) that awaits for worker nodes to complete in order to combine (reduce) partial solutions, i.e. counting how many configurations of the chessboard solve the puzzle.
 
-### 2.1 The Cost model
+### 2.1. The Cost model
 
 The selection of the parameter 2 <= d <= n, namely the base case in which to stop the recursion, is particularly important. To better understand that, let's see the cost model of the computational graph of the parallel application as described in the introduction to the parallel algorithm. The ideal service time of the parallel graph is given by
 
@@ -137,7 +137,7 @@ t_w = O((n-d)!) + t_{synch}.
 The term t_{synch} represents the latency given by the mechanisms of synchronization to access the shared memory between (E, w_j). The introduction of m shared queues makes possible to implement a round robin policy to redistribute tasks among workers, solving thus the load-balancing problem. It is worth mentioning, that both in the FastFlow and C++11 threaded version of the application, the generinc worker node accumulates the partial solutions in a counter in its local memory. And thus, the collector node C, after all worker have been terminated, reduces all partial accumulated solutions simply by accessing all the local memories of the single worker nodes. In that way, communications latencies are reduced to the minimum, without incurring into synchronization mechanisms, making thus the conquering part totally independent. That solution, is motivated also in part by the fact that the reduce operation is negligible.
 
 
-### 3 Experimental results
+## 3. Experimental results
 
 Experiments were run on an Intel Xeon architecture equipped with 8 cores @ 2Ghz, and with hyperthreading can be allocated up to 16 threads. Such an architecture hosts 2 co-processors based on the Intel Many Integrated Core (mic) architecture, named as Xeon Phi. Each co-processor is equipped with 60 cores @ 1Ghz, and with hyperthreading can be allocated a total of 240 threads. The parallel application, both the FastFlow and C++11 Threaded versions, has been compiled using the Intel compiler (ic) ver. 15.0.2. The size of the problem is n=16 with different values of d=2,4,8,16.
 Below the plots relative to the completion time, the scalability and the speedup on the mic (a,b,c) architecture, and the speedup on the host (d) architecture.
@@ -163,4 +163,4 @@ In the following plots, we show the results of the impact of communication laten
 ![](https://github.com/luigidisotto/n-queens/blob/master/img/thread-comm.png)
 
 As we can see, for d=4, we have t_{synch} \approx 0, namely, in the completion time of the generic worker the cost communication is completely negligible. Instead, for d=8, we have t_e, t_w \approx t_{synch}, namely, the generic worker spends more time waiting for new tasks than to conquer the problem.
-In conclusion, we can say that in the attempt to make the computation more fine grained, namely for increasing values of parameter d, the number of needed PEs tends to decrease. That is a consequence of the fact that the computational graph behaves, for increasing values of d, as a sequential module. Furthermore, the communication latancies are the dominant factor.
+In conclusion, we can say that in the attempt to make the computation more fine grained, namely for increasing values of parameter d, the number of needed PEs tends to decrease. That is a consequence of the fact that the computational graph behaves, for increasing values of d, as a sequential module. Furthermore, the communication latancies are the dominant factor.g
